@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 120" preserveAspectRatio="none" role="presentation" aria-hidden="true">
+  <polyline
+    points="0,60 90,60 115,10 145,110 175,60 260,60 285,25 315,95 345,60 430,60 455,15 485,105 515,60 600,60 625,30 655,90 685,60 800,60"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.18"
+  />
+  <circle cx="115" cy="10" r="5" fill="#5eead4" opacity="0.4" />
+  <circle cx="285" cy="25" r="4" fill="#ffffff" opacity="0.3" />
+  <circle cx="455" cy="15" r="5" fill="#5eead4" opacity="0.4" />
+  <circle cx="625" cy="30" r="4" fill="#ffffff" opacity="0.3" />
+</svg>
