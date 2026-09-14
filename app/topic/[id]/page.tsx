@@ -18,12 +18,12 @@ export default function TopicPage({ params }: { params: Promise<{ id: string }> 
   const done = isTopicComplete(id);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-2xl px-4 py-8">
       <Link href="/browse" className="text-sm text-teal-700 hover:underline dark:text-teal-300">
         ← Back to browse
       </Link>
 
-      <div className="mt-6 rounded-3xl border border-teal-900/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5 sm:p-8">
+      <div className="mt-6 rounded-3xl border border-teal-900/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5 sm:p-10">
         <div className="flex items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-wide text-teal-600 dark:text-teal-300">
             {topic.chapterTitle}

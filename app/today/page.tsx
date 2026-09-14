@@ -70,10 +70,10 @@ export default function Home() {
       {/* Content card */}
       <div className="mx-auto max-w-3xl px-4 py-10">
         {!isComplete && todaysTopic && (
-          <div className="rounded-3xl border border-teal-900/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5 sm:p-8">
+          <div className="mx-auto max-w-2xl rounded-3xl border border-teal-900/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5 sm:p-10">
             <TopicText text={todaysTopic.text} />
 
-            <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-teal-900/10 pt-6 dark:border-white/10">
+            <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-teal-900/10 pt-6 dark:border-white/10">
               <button
                 onClick={() => markComplete(todaysTopic.id)}
                 className="rounded-full bg-teal-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-700"
@@ -97,7 +97,7 @@ export default function Home() {
         )}
 
         {isComplete && (
-          <div className="rounded-3xl border border-teal-900/10 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-white/5">
+          <div className="mx-auto max-w-2xl rounded-3xl border border-teal-900/10 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-white/5">
             <p className="text-lg font-medium">Nice work seeing the whole guideline through.</p>
             <p className="mt-1 text-sm opacity-70">
               Use <Link href="/browse" className="underline">Browse</Link> to revisit anything, any time.
