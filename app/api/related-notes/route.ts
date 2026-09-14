@@ -84,6 +84,11 @@ Respond with ONLY a single JSON object, no markdown code fences, no commentary b
   "clinicalPearl": "one concrete, practical tip or common pitfall clearly supported by the text -- omit this field entirely if none is well-supported"
 }`;
 
+  // kimi-k3 is a very large reasoning model -- real responses have taken
+  // anywhere from ~60s to ~2.5min. Bound it well above that rather than
+  // leaving the route to hang forever if the upstream truly stalls.
+  const upstreamTimeout = AbortSignal.timeout(280_000);
+
   let upstream: Response;
   try {
     upstream = await fetch(NVIDIA_API_URL, {
@@ -100,9 +105,14 @@ Respond with ONLY a single JSON object, no markdown code fences, no commentary b
         temperature: 0.4,
         stream: false,
       }),
+      signal: upstreamTimeout,
     });
-  } catch {
-    return NextResponse.json({ error: "Failed to reach the NVIDIA API." }, { status: 502 });
+  } catch (e) {
+    const timedOut = e instanceof Error && e.name === "TimeoutError";
+    return NextResponse.json(
+      { error: timedOut ? "The model took too long to respond (4.5+ min) and the request was cancelled." : "Failed to reach the NVIDIA API." },
+      { status: 502 }
+    );
   }
 
   if (!upstream.ok) {
