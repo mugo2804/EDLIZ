@@ -29,12 +29,13 @@ export default function Browse() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-4 text-xl font-semibold">Browse all topics</h1>
+      <h1 className="mb-1 text-2xl font-bold text-teal-950 dark:text-teal-50">Browse all topics</h1>
+      <p className="mb-6 text-sm opacity-60">Every chapter of EDLIZ 2025 — jump to anything, any time.</p>
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search chapters, sections, or drug names…"
-        className="mb-6 w-full rounded-lg border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-emerald-600 dark:border-white/10"
+        className="mb-6 w-full rounded-full border border-teal-900/10 bg-white px-5 py-3 text-sm shadow-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-white/10 dark:bg-white/5"
       />
 
       <div className="space-y-3">
@@ -46,20 +47,20 @@ export default function Browse() {
             <details
               key={chapter.chapterIndex}
               open={open}
-              className="group rounded-lg border border-black/10 dark:border-white/10"
+              className="group overflow-hidden rounded-2xl border border-teal-900/10 bg-white shadow-sm dark:border-white/10 dark:bg-white/5"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide opacity-70 marker:content-none">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 text-xs font-semibold uppercase tracking-wide text-teal-900 marker:content-none dark:text-teal-100">
                 <span className="flex items-center gap-2">
-                  <span className="text-[10px] opacity-50 transition-transform group-open:rotate-90">
+                  <span className="text-[10px] text-teal-500 transition-transform group-open:rotate-90">
                     ▶
                   </span>
                   {chapter.chapterTitle}
                 </span>
-                <span className="shrink-0 normal-case tracking-normal opacity-60">
+                <span className="shrink-0 rounded-full bg-teal-900/5 px-2.5 py-1 normal-case tracking-normal text-teal-700 dark:bg-white/10 dark:text-teal-200">
                   {doneCount}/{chapter.topics.length}
                 </span>
               </summary>
-              <ul className="divide-y divide-black/5 border-t border-black/10 dark:divide-white/5 dark:border-white/10">
+              <ul className="divide-y divide-teal-900/5 border-t border-teal-900/10 dark:divide-white/5 dark:border-white/10">
                 {chapter.topics.map((topic) => {
                   const done = isTopicComplete(topic.id);
                   const isToday = todaysTopic?.id === topic.id;
@@ -67,14 +68,14 @@ export default function Browse() {
                     <li key={topic.id}>
                       <Link
                         href={`/topic/${topic.id}`}
-                        className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
+                        className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-teal-50 dark:hover:bg-white/[0.04]"
                       >
                         <span className="flex items-center gap-2">
                           <span
                             className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ${
                               done
-                                ? "bg-emerald-600 text-white"
-                                : "border border-black/20 dark:border-white/20"
+                                ? "bg-teal-600 text-white"
+                                : "border border-teal-900/20 dark:border-white/20"
                             }`}
                           >
                             {done ? "✓" : ""}
@@ -82,7 +83,7 @@ export default function Browse() {
                           {topic.sectionTitle}
                         </span>
                         {isToday && (
-                          <span className="shrink-0 rounded-full bg-emerald-600/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600">
+                          <span className="shrink-0 rounded-full bg-teal-600/10 px-2 py-0.5 text-[10px] font-medium text-teal-700 dark:text-teal-300">
                             today
                           </span>
                         )}
