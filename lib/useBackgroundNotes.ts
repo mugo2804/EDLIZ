@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import type { BackgroundNoteResult } from "@/app/api/related-notes/route";
 
-const STORAGE_KEY = "edliz-surfer-notes-v1";
+const STORAGE_KEY = "edliz-surfer-notes-v2";
 
-type NotesState = Record<string, string>; // topicId -> generated background note
+type NotesState = Record<string, BackgroundNoteResult>; // topicId -> generated note
 
 const EMPTY_STATE: NotesState = {};
 
@@ -49,12 +50,12 @@ function commit(next: NotesState) {
 export function useBackgroundNotes() {
   const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  const saveNote = useCallback((topicId: string, note: string) => {
+  const saveNote = useCallback((topicId: string, note: BackgroundNoteResult) => {
     commit({ ...getSnapshot(), [topicId]: note });
   }, []);
 
   return {
-    getNote: (topicId: string): string | undefined => state[topicId],
+    getNote: (topicId: string): BackgroundNoteResult | undefined => state[topicId],
     saveNote,
   };
 }

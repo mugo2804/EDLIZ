@@ -161,3 +161,20 @@ export function formatTopicText(text: string): TopicBlock[] {
   flushParagraph();
   return blocks;
 }
+
+// A clean plain-text rendering of the reflowed blocks -- real paragraphs and
+// "- " list items instead of one-line-per-PDF-break fragments. Used as LLM
+// context (e.g. for background notes) so the model reads coherent text
+// instead of the raw extraction's broken lines.
+export function formatTopicTextPlain(text: string): string {
+  const blocks = formatTopicText(text);
+  const lines: string[] = [];
+  for (const b of blocks) {
+    if (b.type === "heading" || b.type === "subheading" || b.type === "p") {
+      lines.push(b.text);
+    } else {
+      for (const item of b.items) lines.push(`- ${item}`);
+    }
+  }
+  return lines.join("\n");
+}

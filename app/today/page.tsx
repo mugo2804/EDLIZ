@@ -5,6 +5,7 @@ import { useProgress } from "@/lib/useProgress";
 import { TopicText } from "@/components/TopicText";
 import { StatCircle } from "@/components/StatCircle";
 import { BackgroundNote } from "@/components/BackgroundNote";
+import { formatTopicTextPlain } from "@/lib/formatTopicText";
 
 export default function Home() {
   const {
@@ -78,6 +79,7 @@ export default function Home() {
               topicId={todaysTopic.id}
               chapterTitle={todaysTopic.chapterTitle}
               sectionTitle={todaysTopic.sectionTitle}
+              sourceText={formatTopicTextPlain(todaysTopic.text)}
             />
 
             <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-teal-900/10 pt-6 dark:border-white/10">

@@ -7,6 +7,7 @@ import { getTopic, getAdjacentTopics, TOTAL_TOPICS } from "@/lib/topics";
 import { useProgress } from "@/lib/useProgress";
 import { TopicText } from "@/components/TopicText";
 import { BackgroundNote } from "@/components/BackgroundNote";
+import { formatTopicTextPlain } from "@/lib/formatTopicText";
 
 export default function TopicPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -39,7 +40,12 @@ export default function TopicPage({ params }: { params: Promise<{ id: string }> 
           <TopicText text={topic.text} />
         </div>
 
-        <BackgroundNote topicId={topic.id} chapterTitle={topic.chapterTitle} sectionTitle={topic.sectionTitle} />
+        <BackgroundNote
+          topicId={topic.id}
+          chapterTitle={topic.chapterTitle}
+          sectionTitle={topic.sectionTitle}
+          sourceText={formatTopicTextPlain(topic.text)}
+        />
 
         <div className="mt-6 flex items-center gap-3 border-t border-teal-900/10 pt-6 dark:border-white/10">
           <button
