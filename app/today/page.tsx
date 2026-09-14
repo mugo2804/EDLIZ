@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useProgress } from "@/lib/useProgress";
 import { TopicText } from "@/components/TopicText";
 import { StatCircle } from "@/components/StatCircle";
+import { BackgroundNote } from "@/components/BackgroundNote";
 
 export default function Home() {
   const {
@@ -72,6 +73,12 @@ export default function Home() {
         {!isComplete && todaysTopic && (
           <div className="mx-auto max-w-2xl rounded-3xl border border-teal-900/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5 sm:p-10">
             <TopicText text={todaysTopic.text} />
+
+            <BackgroundNote
+              topicId={todaysTopic.id}
+              chapterTitle={todaysTopic.chapterTitle}
+              sectionTitle={todaysTopic.sectionTitle}
+            />
 
             <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-teal-900/10 pt-6 dark:border-white/10">
               <button
