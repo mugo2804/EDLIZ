@@ -53,8 +53,8 @@ export function BackgroundNote({
             <div>
               <p className="text-sm font-medium">Generating&hellip; {formatElapsed(elapsed)} elapsed</p>
               <p className="mt-1 text-sm leading-relaxed opacity-70">
-                kimi-k3 is a very large reasoning model, so this can take a minute or two — sometimes longer. No
-                need to wait here: keep reading above, switch topics, or come back later and it&apos;ll be ready.
+                Usually ready within a minute. Feel free to keep reading above — it&apos;ll appear here when done,
+                even if you switch topics and come back.
               </p>
             </div>
           </div>
@@ -107,7 +107,7 @@ export function BackgroundNote({
             <p className="text-sm leading-relaxed opacity-70">
               Get a detailed, AI-written study note on this section — the underlying concept and how EDLIZ
               approaches managing it, explained in plain language. Grounded in the guideline text above, not a
-              substitute for it. kimi-k3 is a large reasoning model, so this can take a minute or two.
+              substitute for it.
             </p>
             <button
               onClick={start}

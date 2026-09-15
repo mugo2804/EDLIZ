@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
-const MODEL = process.env.NVIDIA_MODEL || "moonshotai/kimi-k3";
+// moonshotai/kimi-k3 (a 2.8T-param MoE reasoning model) was the original
+// default and produced correct notes, but took 60s-2.5min per request in
+// testing, and sometimes didn't respond at all within 4.5 minutes on even a
+// trivial prompt -- confirmed against the live API, not assumed. Switched to
+// nemotron-3.5-lightning: same "thinking" style but consistently much
+// faster (~1-90s observed) and available on this account.
+const MODEL = process.env.NVIDIA_MODEL || "nvidia/nemotron-3.5-lightning-30b-a3b";
 const MAX_SOURCE_CHARS = 6000;
 
 export type BackgroundNoteResult = {
@@ -11,18 +17,38 @@ export type BackgroundNoteResult = {
   clinicalPearl?: string;
 };
 
+// Reasoning-style models on this endpoint mix their visible chain-of-thought
+// into `message.content` itself (not cleanly confined to the separate
+// `reasoning_content` field) -- e.g. "Here's a thinking process... Draft
+// JSON: {...}". A naive first-"{"-to-last-"}" scan can grab the wrong braces
+// when the model quotes the target JSON shape earlier while reasoning about
+// it. Scanning backward from the final "}" and depth-matching to its real
+// opening "{" reliably isolates the actual final answer instead.
 function extractJsonObject(raw: string): unknown {
   const cleaned = raw
     .trim()
     .replace(/^```(?:json)?/i, "")
     .replace(/```$/, "")
     .trim();
-  // Some models add stray prose around the JSON despite instructions -- pull
-  // out the outermost {...} block as a fallback.
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  const candidate = start !== -1 && end !== -1 ? cleaned.slice(start, end + 1) : cleaned;
-  return JSON.parse(candidate);
+
+  const lastClose = cleaned.lastIndexOf("}");
+  if (lastClose === -1) throw new Error("No JSON object found in model output.");
+
+  let depth = 0;
+  let start = -1;
+  for (let i = lastClose; i >= 0; i--) {
+    if (cleaned[i] === "}") depth++;
+    else if (cleaned[i] === "{") {
+      depth--;
+      if (depth === 0) {
+        start = i;
+        break;
+      }
+    }
+  }
+  if (start === -1) throw new Error("Unbalanced braces in model output.");
+
+  return JSON.parse(cleaned.slice(start, lastClose + 1));
 }
 
 function isValidNote(v: unknown): v is BackgroundNoteResult {
@@ -84,10 +110,7 @@ Respond with ONLY a single JSON object, no markdown code fences, no commentary b
   "clinicalPearl": "one concrete, practical tip or common pitfall clearly supported by the text -- omit this field entirely if none is well-supported"
 }`;
 
-  // kimi-k3 is a very large reasoning model -- real responses have taken
-  // anywhere from ~60s to ~2.5min. Bound it well above that rather than
-  // leaving the route to hang forever if the upstream truly stalls.
-  const upstreamTimeout = AbortSignal.timeout(280_000);
+  const upstreamTimeout = AbortSignal.timeout(90_000);
 
   let upstream: Response;
   try {
@@ -101,16 +124,24 @@ Respond with ONLY a single JSON object, no markdown code fences, no commentary b
       body: JSON.stringify({
         model: MODEL,
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 1100,
+        max_tokens: 1200,
         temperature: 0.4,
         stream: false,
+        // Without this, nemotron-3.5-lightning spends its whole token budget
+        // narrating chain-of-thought reasoning into the visible content
+        // field before (sometimes never) reaching the actual JSON answer --
+        // confirmed directly: same prompt went from finish_reason "length"
+        // with zero JSON output at 2200 tokens, to a clean, complete answer
+        // in 516 tokens / ~20s with this set. Silently ignored by models
+        // that don't support it, so safe to always send.
+        chat_template_kwargs: { enable_thinking: false },
       }),
       signal: upstreamTimeout,
     });
   } catch (e) {
     const timedOut = e instanceof Error && e.name === "TimeoutError";
     return NextResponse.json(
-      { error: timedOut ? "The model took too long to respond (4.5+ min) and the request was cancelled." : "Failed to reach the NVIDIA API." },
+      { error: timedOut ? "The model took too long to respond (90+ s) and the request was cancelled." : "Failed to reach the NVIDIA API." },
       { status: 502 }
     );
   }
@@ -137,10 +168,14 @@ Respond with ONLY a single JSON object, no markdown code fences, no commentary b
   }
 
   if (!isValidNote(parsed)) {
-    // Graceful fallback: still show something readable instead of an error.
-    return NextResponse.json({
-      note: { overview: content.trim(), keyPoints: [], managementSummary: "" } satisfies BackgroundNoteResult,
-    });
+    // This model's raw content can include its full visible chain-of-thought
+    // when it doesn't cleanly land the requested JSON shape -- showing that
+    // wall of "let me think about this..." text as if it were the note
+    // would be worse than a clear, retryable error.
+    return NextResponse.json(
+      { error: "The model's response wasn't in the expected format. This is usually transient -- try again." },
+      { status: 502 }
+    );
   }
 
   return NextResponse.json({ note: parsed });

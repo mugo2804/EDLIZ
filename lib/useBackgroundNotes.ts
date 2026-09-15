@@ -4,10 +4,10 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import type { BackgroundNoteResult } from "@/app/api/related-notes/route";
 
 const STORAGE_KEY = "edliz-surfer-notes-v2";
-// kimi-k3 is a very large reasoning model -- real requests have taken
-// anywhere from ~60s to ~2.5min. Bound the wait generously rather than
-// leaving a request to hang forever if the upstream truly stalls.
-const CLIENT_TIMEOUT_MS = 5 * 60 * 1000;
+// Matches the server route's own AbortSignal.timeout(90_000) plus a little
+// headroom -- bounds the wait instead of leaving a request to hang forever
+// if the upstream truly stalls.
+const CLIENT_TIMEOUT_MS = 110 * 1000;
 
 type Store = {
   notes: Record<string, BackgroundNoteResult>; // topicId -> generated note (persisted)
@@ -103,7 +103,7 @@ async function generate(topicId: string, chapterTitle: string, sectionTitle: str
     const message =
       e instanceof Error
         ? e.name === "AbortError"
-          ? "This is taking much longer than usual (5+ minutes) and was cancelled. Try again, or switch NVIDIA_MODEL in .env.local to a faster model."
+          ? "This is taking much longer than usual and was cancelled. Try again -- it's usually just a slow request."
           : e.message
         : "Something went wrong.";
     setStore({ generatingSince: restGenerating, errors: { ...after.errors, [topicId]: message } });
