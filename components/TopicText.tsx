@@ -1,17 +1,30 @@
 import { formatTopicText } from "@/lib/formatTopicText";
+import type { FontScale } from "@/lib/useReaderFontScale";
 
-export function TopicText({ text }: { text: string }) {
+const SIZES: Record<FontScale, { body: string; h3: string; h4: string }> = {
+  0: { body: "text-[14px] leading-[1.7]", h3: "text-base sm:text-lg", h4: "text-sm" },
+  1: {
+    body: "text-[15.5px] leading-[1.75] sm:text-base sm:leading-[1.8]",
+    h3: "text-lg sm:text-xl",
+    h4: "text-[15px] sm:text-base",
+  },
+  2: { body: "text-[18px] leading-[1.8] sm:text-lg sm:leading-[1.85]", h3: "text-xl sm:text-2xl", h4: "text-lg" },
+};
+
+export function TopicText({ text, scale = 1 }: { text: string; scale?: FontScale }) {
   const blocks = formatTopicText(text);
+  const sizes = SIZES[scale];
 
   return (
-    <div className="text-[15.5px] leading-[1.75] text-teal-950/90 dark:text-teal-50/90 sm:text-base sm:leading-[1.8]">
+    <div className={`${sizes.body} text-teal-950/90 dark:text-teal-50/90`}>
       {blocks.map((block, i) => {
         switch (block.type) {
           case "heading":
             return (
               <h3
                 key={i}
-                className="mb-3 mt-9 text-lg font-bold text-teal-900 first:mt-0 dark:text-teal-100 sm:text-xl"
+                id={`block-${i}`}
+                className={`mb-3 mt-9 scroll-mt-24 font-bold text-teal-900 first:mt-0 dark:text-teal-100 ${sizes.h3}`}
               >
                 {block.text}
               </h3>
@@ -20,7 +33,8 @@ export function TopicText({ text }: { text: string }) {
             return (
               <h4
                 key={i}
-                className="mb-2 mt-6 text-[15px] font-semibold text-teal-700 first:mt-0 dark:text-teal-300 sm:text-base"
+                id={`block-${i}`}
+                className={`mb-2 mt-6 scroll-mt-24 font-semibold text-teal-700 first:mt-0 dark:text-teal-300 ${sizes.h4}`}
               >
                 {block.text}
               </h4>

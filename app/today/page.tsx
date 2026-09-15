@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useProgress } from "@/lib/useProgress";
+import { useReaderFontScale } from "@/lib/useReaderFontScale";
 import { TopicText } from "@/components/TopicText";
+import { TopicToc } from "@/components/TopicToc";
+import { ReaderToolbar } from "@/components/ReaderToolbar";
 import { StatCircle } from "@/components/StatCircle";
 import { BackgroundNote } from "@/components/BackgroundNote";
 import { formatTopicTextPlain } from "@/lib/formatTopicText";
@@ -18,6 +21,7 @@ export default function Home() {
     markComplete,
   } = useProgress();
 
+  const { scale } = useReaderFontScale();
   const pct = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
 
   return (
@@ -73,7 +77,16 @@ export default function Home() {
       <div className="mx-auto max-w-3xl px-4 py-10">
         {!isComplete && todaysTopic && (
           <div className="mx-auto max-w-2xl rounded-3xl border border-teal-900/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5 sm:p-10">
-            <TopicText text={todaysTopic.text} />
+            <ReaderToolbar
+              topicId={todaysTopic.id}
+              chapterTitle={todaysTopic.chapterTitle}
+              sectionTitle={todaysTopic.sectionTitle}
+              text={todaysTopic.text}
+            />
+            <div className="mt-4">
+              <TopicToc text={todaysTopic.text} />
+              <TopicText text={todaysTopic.text} scale={scale} />
+            </div>
 
             <BackgroundNote
               topicId={todaysTopic.id}

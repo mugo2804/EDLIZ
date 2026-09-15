@@ -19,8 +19,15 @@ export type TopicBlock =
   | { type: "ol"; items: string[] }
   | { type: "ul"; items: string[] };
 
-const BULLET_ALONE = /^[▪•]$/;
-const BULLET_INLINE = /^[▪•]\s+(\S.*)$/;
+// : Wingdings' bullet glyph (its 'l', which renders as a solid
+// square) extracted as a raw Private-Use-Area codepoint instead of being
+// recognized as a bullet -- a very common PDF-extraction artifact, not a
+// rare edge case: it appears ~2,850 times across this corpus, always at the
+// start of a bullet-list line, usually glued directly to the next word with
+// no space (unlike "▪"/"•", which the source usually pairs with one).
+const BULLET_CHARS = "▪•";
+const BULLET_ALONE = new RegExp(`^[${BULLET_CHARS}]$`);
+const BULLET_INLINE = new RegExp(`^[${BULLET_CHARS}]\\s*(\\S.*)$`);
 const DASH_INLINE = /^-\s+(\S.*)$/;
 const NUM_ALONE = /^\d{1,2}\.$/;
 const NUM_INLINE = /^(\d{1,2})\.\s+(\S.*)$/;
@@ -160,6 +167,23 @@ export function formatTopicText(text: string): TopicBlock[] {
   }
   flushParagraph();
   return blocks;
+}
+
+export type TocEntry = { id: string; text: string; level: "heading" | "subheading" };
+
+// Heading/subheading blocks as jump-link targets. Ids are "block-<index>"
+// into the full formatTopicText(text) block array -- TopicText renders the
+// exact same blocks from the exact same input, so it assigns matching ids
+// to the actual heading elements without the two ever needing to coordinate.
+export function getTocEntries(text: string): TocEntry[] {
+  const blocks = formatTopicText(text);
+  const entries: TocEntry[] = [];
+  blocks.forEach((b, i) => {
+    if (b.type === "heading" || b.type === "subheading") {
+      entries.push({ id: `block-${i}`, text: b.text, level: b.type });
+    }
+  });
+  return entries;
 }
 
 // A clean plain-text rendering of the reflowed blocks -- real paragraphs and

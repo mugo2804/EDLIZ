@@ -3,9 +3,13 @@
 import { use } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronRight } from "lucide-react";
 import { getTopic, getAdjacentTopics, TOTAL_TOPICS } from "@/lib/topics";
 import { useProgress } from "@/lib/useProgress";
+import { useReaderFontScale } from "@/lib/useReaderFontScale";
 import { TopicText } from "@/components/TopicText";
+import { TopicToc } from "@/components/TopicToc";
+import { ReaderToolbar } from "@/components/ReaderToolbar";
 import { BackgroundNote } from "@/components/BackgroundNote";
 import { formatTopicTextPlain } from "@/lib/formatTopicText";
 
@@ -13,6 +17,7 @@ export default function TopicPage({ params }: { params: Promise<{ id: string }> 
   const { id } = use(params);
   const topic = getTopic(id);
   const { isTopicComplete, markComplete, markIncomplete } = useProgress();
+  const { scale } = useReaderFontScale();
 
   if (!topic) notFound();
 
@@ -21,9 +26,13 @@ export default function TopicPage({ params }: { params: Promise<{ id: string }> 
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/browse" className="text-sm text-teal-700 hover:underline dark:text-teal-300">
-        ← Back to browse
-      </Link>
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-teal-700 dark:text-teal-300">
+        <Link href="/browse" className="hover:underline">
+          Browse
+        </Link>
+        <ChevronRight size={14} className="opacity-50" />
+        <span className="truncate opacity-70">{topic.chapterTitle}</span>
+      </nav>
 
       <div className="mt-6 rounded-3xl border border-teal-900/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5 sm:p-10">
         <div className="flex items-center justify-between">
@@ -36,8 +45,13 @@ export default function TopicPage({ params }: { params: Promise<{ id: string }> 
         </div>
         <h1 className="mt-1 text-2xl font-bold text-teal-950 dark:text-teal-50">{topic.sectionTitle}</h1>
 
+        <div className="mt-4">
+          <ReaderToolbar topicId={topic.id} chapterTitle={topic.chapterTitle} sectionTitle={topic.sectionTitle} text={topic.text} />
+        </div>
+
         <div className="mt-6">
-          <TopicText text={topic.text} />
+          <TopicToc text={topic.text} />
+          <TopicText text={topic.text} scale={scale} />
         </div>
 
         <BackgroundNote
