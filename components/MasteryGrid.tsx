@@ -24,7 +24,11 @@ export function MasteryGrid() {
             href={`/topic/${chapter.topics[0].id}`}
             title={`${chapter.chapterTitle} — ${done}/${total}`}
             aria-label={`${chapter.chapterTitle}: ${done} of ${total} topics complete`}
-            className="group relative aspect-square overflow-hidden rounded-md border border-teal-900/10 bg-teal-900/[0.04] transition-transform hover:scale-105 dark:border-white/10 dark:bg-white/5"
+            className={`group relative aspect-square overflow-hidden rounded-md transition-transform hover:scale-105 ${
+              pct > 0
+                ? "border border-teal-900/10 bg-teal-900/[0.04] dark:border-white/10 dark:bg-white/5"
+                : "border border-dashed border-teal-900/20 bg-transparent dark:border-white/20"
+            }`}
           >
             {pct > 0 && (
               <div

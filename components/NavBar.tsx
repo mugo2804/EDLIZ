@@ -7,8 +7,7 @@ import { Search } from "lucide-react";
 import { SearchModal } from "@/components/SearchModal";
 
 const LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/today", label: "Today" },
+  { href: "/", label: "Today" },
   { href: "/browse", label: "Browse" },
 ];
 

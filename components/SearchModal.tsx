@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search as SearchIcon, X, CornerDownLeft } from "lucide-react";
-import { TOPICS, type Topic } from "@/lib/topics";
+import { TOPICS, TOTAL_TOPICS, type Topic } from "@/lib/topics";
 
 const MAX_RESULTS = 8;
 const EXCERPT_RADIUS = 60;
@@ -135,7 +135,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
             ref={inputRef}
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="Search all 540 topics…"
+            placeholder={`Search all ${TOTAL_TOPICS} topics…`}
             className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:opacity-50"
           />
           <button onClick={onClose} className="shrink-0 rounded-full p-1 text-teal-500 hover:bg-teal-50 dark:hover:bg-white/10">
