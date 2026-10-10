@@ -8,31 +8,75 @@ import { TOPICS, type Topic } from "@/lib/topics";
 const MAX_RESULTS = 8;
 const EXCERPT_RADIUS = 60;
 
+// Common clinical abbreviations clinicians actually type at the point of
+// care -- when the query exactly matches one of these, results also match
+// on the expansion, since the guideline text itself mostly spells terms out.
+const ABBREVIATIONS: Record<string, string> = {
+  art: "antiretroviral therapy",
+  arv: "antiretroviral",
+  hiv: "human immunodeficiency virus",
+  sti: "sexually transmitted infection",
+  std: "sexually transmitted disease",
+  tb: "tuberculosis",
+  uti: "urinary tract infection",
+  pid: "pelvic inflammatory disease",
+  anc: "antenatal care",
+  pmtct: "prevention of mother to child transmission",
+  copd: "chronic obstructive pulmonary disease",
+  dm: "diabetes mellitus",
+  htn: "hypertension",
+  cvd: "cardiovascular disease",
+  mdr: "multidrug resistant",
+  rdt: "rapid diagnostic test",
+  iptp: "intermittent preventive treatment",
+  cns: "central nervous system",
+  gi: "gastrointestinal",
+  aki: "acute kidney injury",
+  ckd: "chronic kidney disease",
+  pep: "post-exposure prophylaxis",
+  prep: "pre-exposure prophylaxis",
+  awa: "access watch reserve",
+  aware: "access watch reserve",
+};
+
 type Match = { topic: Topic; excerpt: string | null };
 
 function search(query: string): Match[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
+  const expansion = ABBREVIATIONS[q];
 
   const titleHits: Match[] = [];
   const chapterHits: Match[] = [];
   const bodyHits: Match[] = [];
+  const seen = new Set<string>();
+
+  function matchesQuery(haystack: string): boolean {
+    const lower = haystack.toLowerCase();
+    return lower.includes(q) || (expansion !== undefined && lower.includes(expansion));
+  }
 
   for (const topic of TOPICS) {
-    if (topic.sectionTitle.toLowerCase().includes(q)) {
+    if (seen.has(topic.id)) continue;
+    if (matchesQuery(topic.sectionTitle)) {
       titleHits.push({ topic, excerpt: null });
+      seen.add(topic.id);
       continue;
     }
-    if (topic.chapterTitle.toLowerCase().includes(q)) {
+    if (matchesQuery(topic.chapterTitle)) {
       chapterHits.push({ topic, excerpt: null });
+      seen.add(topic.id);
       continue;
     }
-    const idx = topic.text.toLowerCase().indexOf(q);
+    const lowerText = topic.text.toLowerCase();
+    const idx = lowerText.indexOf(q) !== -1 ? lowerText.indexOf(q) : expansion !== undefined ? lowerText.indexOf(expansion) : -1;
     if (idx !== -1) {
+      const matchLen = lowerText.indexOf(q) !== -1 ? q.length : (expansion?.length ?? 0);
       const start = Math.max(0, idx - EXCERPT_RADIUS);
-      const end = Math.min(topic.text.length, idx + q.length + EXCERPT_RADIUS);
+      const end = Math.min(topic.text.length, idx + matchLen + EXCERPT_RADIUS);
       const excerpt = (start > 0 ? "…" : "") + topic.text.slice(start, end).replace(/\s+/g, " ").trim() + "…";
       bodyHits.push({ topic, excerpt });
+      seen.add(topic.id);
     }
   }
 

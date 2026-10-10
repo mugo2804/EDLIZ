@@ -36,16 +36,24 @@ export function NavBar() {
           </span>
           <span className="text-sm sm:text-base">EDLIZ Surfer</span>
         </Link>
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-1 sm:gap-3">
           <button
             onClick={() => setSearchOpen(true)}
             aria-label="Search topics"
-            className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-teal-100 transition-colors hover:bg-white/10"
+            className="hidden min-w-0 flex-1 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-left text-teal-200 transition-colors hover:bg-white/10 sm:flex sm:max-w-[220px] md:max-w-[280px]"
           >
-            <Search size={15} />
-            <span className="hidden text-[11px] opacity-70 md:inline">⌘K</span>
+            <Search size={14} className="shrink-0" />
+            <span className="flex-1 truncate text-sm opacity-70">Search drugs, conditions…</span>
+            <span className="hidden shrink-0 rounded border border-white/20 px-1.5 py-0.5 text-[10px] opacity-60 md:inline">⌘K</span>
           </button>
-          <nav className="flex items-center gap-0.5 text-xs sm:gap-1 sm:text-sm">
+          <button
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search topics"
+            className="flex shrink-0 items-center rounded-full p-2 text-teal-100 transition-colors hover:bg-white/10 sm:hidden"
+          >
+            <Search size={16} />
+          </button>
+          <nav className="flex shrink-0 items-center gap-0.5 text-xs sm:gap-1 sm:text-sm">
             {LINKS.map((link) => {
               const active = pathname === link.href;
               return (

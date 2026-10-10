@@ -13,6 +13,7 @@ import { formatTopicTextPlain } from "@/lib/formatTopicText";
 export default function Home() {
   const {
     streak,
+    freezesRemaining,
     completedToday,
     completedCount,
     totalTopics,
@@ -68,7 +69,7 @@ export default function Home() {
 
       {/* Stat circles, overlapping the hero */}
       <div className="mx-auto -mt-10 flex max-w-3xl justify-center gap-6 px-4 sm:gap-10">
-        <StatCircle value={String(streak)} label="day streak" />
+        <StatCircle value={String(streak)} label="day streak" freezeBadge={freezesRemaining} />
         <StatCircle value={`${completedCount}/${totalTopics}`} label="topics done" />
         <StatCircle value={`${pct}%`} label="of EDLIZ covered" />
       </div>
@@ -77,12 +78,14 @@ export default function Home() {
       <div className="mx-auto max-w-3xl px-4 py-10">
         {!isComplete && todaysTopic && (
           <div className="mx-auto max-w-2xl rounded-3xl border border-teal-900/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5 sm:p-10">
-            <ReaderToolbar
-              topicId={todaysTopic.id}
-              chapterTitle={todaysTopic.chapterTitle}
-              sectionTitle={todaysTopic.sectionTitle}
-              text={todaysTopic.text}
-            />
+            <div className="sticky top-20 z-10 -mx-6 bg-white/95 px-6 py-2 backdrop-blur dark:bg-teal-950/95 sm:-mx-10 sm:px-10">
+              <ReaderToolbar
+                topicId={todaysTopic.id}
+                chapterTitle={todaysTopic.chapterTitle}
+                sectionTitle={todaysTopic.sectionTitle}
+                text={todaysTopic.text}
+              />
+            </div>
             <div className="mt-4">
               <TopicToc text={todaysTopic.text} />
               <TopicText text={todaysTopic.text} scale={scale} />

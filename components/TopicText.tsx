@@ -1,3 +1,4 @@
+import { AlertTriangle, Table2 } from "lucide-react";
 import { formatTopicText } from "@/lib/formatTopicText";
 import type { FontScale } from "@/lib/useReaderFontScale";
 
@@ -58,6 +59,29 @@ export function TopicText({ text, scale = 1 }: { text: string; scale?: FontScale
                   </li>
                 ))}
               </ul>
+            );
+          case "callout":
+            return (
+              <div
+                key={i}
+                className="mb-4 flex items-start gap-2.5 rounded-xl border border-rose-300/70 bg-rose-50 p-3.5 dark:border-rose-400/25 dark:bg-rose-400/10"
+              >
+                <AlertTriangle size={17} className="mt-0.5 shrink-0 text-rose-600 dark:text-rose-400" />
+                <p className="text-rose-950 dark:text-rose-100">{block.text}</p>
+              </div>
+            );
+          case "data":
+            return (
+              <div
+                key={i}
+                className="mb-4 rounded-xl border border-teal-900/15 bg-teal-900/[0.03] p-3.5 font-mono text-[0.9em] leading-relaxed dark:border-white/15 dark:bg-white/[0.04]"
+              >
+                <p className="mb-1.5 flex items-center gap-1.5 font-sans text-[11px] font-bold uppercase tracking-wide text-teal-600 dark:text-teal-300">
+                  <Table2 size={13} />
+                  Extracted dosing data — verify layout against source
+                </p>
+                {block.text}
+              </div>
             );
           case "p":
           default:

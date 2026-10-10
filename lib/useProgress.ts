@@ -73,21 +73,39 @@ function commit(next: ProgressState) {
   listeners.forEach((l) => l());
 }
 
-function computeStreak(dates: Set<string>): number {
+// One streak-freeze credit per 7 distinct days of engagement (lifetime),
+// derived fresh from the completion dates every time rather than persisted
+// separately -- so there's no separate "freezes used" state that could ever
+// drift out of sync with the actual history. A frozen day pauses the streak
+// (doesn't break it) without incrementing it, same as it not existing.
+const FREEZE_EVERY_N_DAYS = 7;
+
+function computeStreak(dates: Set<string>): { streak: number; freezesRemaining: number } {
+  const totalFreezes = Math.floor(dates.size / FREEZE_EVERY_N_DAYS);
   const cursor = new Date();
   cursor.setHours(0, 0, 0, 0);
 
+  // The streak must be alive as of today or yesterday to count at all --
+  // freezes bridge isolated gaps within an active streak, they don't
+  // resurrect one that's been dormant for a long time.
   if (!dates.has(toDateKey(cursor))) {
     cursor.setDate(cursor.getDate() - 1);
-    if (!dates.has(toDateKey(cursor))) return 0;
+    if (!dates.has(toDateKey(cursor))) return { streak: 0, freezesRemaining: totalFreezes };
   }
 
   let streak = 0;
-  while (dates.has(toDateKey(cursor))) {
-    streak += 1;
+  let freezesUsed = 0;
+  while (true) {
+    if (dates.has(toDateKey(cursor))) {
+      streak += 1;
+    } else if (freezesUsed < totalFreezes) {
+      freezesUsed += 1;
+    } else {
+      break;
+    }
     cursor.setDate(cursor.getDate() - 1);
   }
-  return streak;
+  return { streak, freezesRemaining: totalFreezes - freezesUsed };
 }
 
 export function useProgress() {
@@ -110,7 +128,7 @@ export function useProgress() {
   const completedIds = new Set(Object.keys(state.completed));
   const completedDates = new Set(Object.values(state.completed));
   const completedCount = completedIds.size;
-  const streak = computeStreak(completedDates);
+  const { streak, freezesRemaining } = computeStreak(completedDates);
   const completedToday = completedDates.has(todayKey());
 
   const nextTopic = TOPICS.find((t) => !completedIds.has(t.id)) ?? null;
@@ -121,6 +139,7 @@ export function useProgress() {
     completedCount,
     totalTopics: TOTAL_TOPICS,
     streak,
+    freezesRemaining,
     completedToday,
     todaysTopic: nextTopic,
     isComplete,

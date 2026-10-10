@@ -1,0 +1,17 @@
+{
+  "name": "EDLIZ Surfer",
+  "short_name": "EDLIZ Surfer",
+  "description": "Zimbabwe's EDLIZ 2025 Essential Medicines List and Standard Treatment Guidelines, one topic a day — and available offline for point-of-care lookup.",
+  "start_url": "/today",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4faf9",
+  "theme_color": "#134e4a",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

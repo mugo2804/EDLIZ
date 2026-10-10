@@ -16,8 +16,51 @@ export type TopicBlock =
   | { type: "heading"; text: string }
   | { type: "subheading"; text: string }
   | { type: "p"; text: string }
+  | { type: "callout"; text: string }
+  | { type: "data"; text: string }
   | { type: "ol"; items: string[] }
   | { type: "ul"; items: string[] };
+
+// Paragraphs mentioning contraindications, hypersensitivity, organ
+// impairment, etc. get flagged for a visually distinct callout -- text is
+// unchanged, only its styling, so a false positive just means a paragraph
+// gets a warning icon it didn't strictly need, never a content risk.
+const SAFETY_KEYWORDS = [
+  "contraindicat",
+  "must not be given",
+  "must not be administered",
+  "must not be used",
+  "should not be given",
+  "should not be administered",
+  "avoid in pregnancy",
+  "avoid during pregnancy",
+  "not recommended in",
+  "hypersensitivity",
+  "anaphylaxis",
+  "renal impairment",
+  "hepatic impairment",
+  "liver impairment",
+  "do not use",
+];
+
+function isSafetyCallout(t: string): boolean {
+  const lower = t.toLowerCase();
+  return SAFETY_KEYWORDS.some((k) => lower.includes(k));
+}
+
+// Paragraphs that read as a reflowed dosing table (see the note above) --
+// flagged with distinct styling so a reader knows "this is raw extracted
+// data, read it carefully" instead of it blending into ordinary prose. This
+// only changes how the SAME text is styled; it never reorders, splits, or
+// reinterprets a single value, so it carries none of the column-guessing
+// risk a reconstructed table would.
+const DOSING_DATA_CUES = ["adult dose", "paediatric dose", "pediatric dose", "frequency", "duration", "codes"];
+
+function isDosingData(t: string): boolean {
+  const lower = t.toLowerCase();
+  if (!lower.includes("medicine")) return false;
+  return DOSING_DATA_CUES.filter((c) => lower.includes(c)).length >= 2;
+}
 
 // : Wingdings' bullet glyph (its 'l', which renders as a solid
 // square) extracted as a raw Private-Use-Area codepoint instead of being
@@ -72,6 +115,10 @@ export function formatTopicText(text: string): TopicBlock[] {
     // Recommendations:") rather than a real paragraph.
     if (t.length <= 70 && (/:$/.test(t) || !/[.!?]$/.test(t))) {
       blocks.push({ type: "subheading", text: t });
+    } else if (isDosingData(t)) {
+      blocks.push({ type: "data", text: t });
+    } else if (isSafetyCallout(t)) {
+      blocks.push({ type: "callout", text: t });
     } else {
       blocks.push({ type: "p", text: t });
     }
@@ -194,10 +241,10 @@ export function formatTopicTextPlain(text: string): string {
   const blocks = formatTopicText(text);
   const lines: string[] = [];
   for (const b of blocks) {
-    if (b.type === "heading" || b.type === "subheading" || b.type === "p") {
-      lines.push(b.text);
-    } else {
+    if (b.type === "ol" || b.type === "ul") {
       for (const item of b.items) lines.push(`- ${item}`);
+    } else {
+      lines.push(b.text);
     }
   }
   return lines.join("\n");

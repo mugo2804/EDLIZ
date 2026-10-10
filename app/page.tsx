@@ -5,10 +5,10 @@ import Image from "next/image";
 import { CalendarCheck, BookOpenText, TrendingUp, ArrowRight } from "lucide-react";
 import { useProgress } from "@/lib/useProgress";
 import { StatCircle } from "@/components/StatCircle";
+import { MasteryGrid } from "@/components/MasteryGrid";
 import { groupByChapter, TOTAL_TOPICS } from "@/lib/topics";
 
 const CHAPTERS = groupByChapter();
-const CHAPTER_PREVIEW = CHAPTERS.slice(0, 10);
 
 const FEATURES = [
   {
@@ -132,20 +132,11 @@ export default function Home() {
               <StatCircle value={streak > 0 ? String(streak) : "1"} label={streak > 0 ? "day streak" : "topic / day"} />
             </div>
           </div>
-          <div className="max-h-72 overflow-y-auto rounded-2xl border border-teal-900/10 bg-white shadow-sm dark:border-white/10 dark:bg-white/5">
-            <ul className="divide-y divide-teal-900/5 dark:divide-white/5">
-              {CHAPTER_PREVIEW.map((chapter) => (
-                <li key={chapter.chapterIndex}>
-                  <Link
-                    href={`/topic/${chapter.topics[0].id}`}
-                    className="flex items-center justify-between px-4 py-3 text-sm hover:bg-teal-50 dark:hover:bg-white/[0.04]"
-                  >
-                    <span className="truncate text-teal-950 dark:text-teal-50">{chapter.chapterTitle}</span>
-                    <span className="shrink-0 pl-3 text-xs opacity-50">{chapter.topics.length}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <div className="rounded-2xl border border-teal-900/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-teal-600 dark:text-teal-300">
+              Mastery grid — one square per chapter
+            </p>
+            <MasteryGrid />
           </div>
         </div>
       </div>
